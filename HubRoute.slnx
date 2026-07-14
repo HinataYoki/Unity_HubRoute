@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/HubRoute/HubRoute.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/HubRoute.Tests/HubRoute.Tests.csproj" />
+  </Folder>
+</Solution>

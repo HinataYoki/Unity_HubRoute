@@ -1,0 +1,35 @@
+# .NET build output
+**/bin/
+**/obj/
+artifacts/
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# IDE and user settings
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12
+*.key
+
+# Runtime leftovers
+*.download
+*.tmp
+*.log
+
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini
