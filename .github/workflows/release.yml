@@ -55,7 +55,7 @@ jobs:
         run: Compress-Archive -Path "artifacts/HubRoute-${{ matrix.rid }}/*" -DestinationPath "HubRoute-${{ matrix.rid }}.zip"
 
       - name: Upload archive
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: HubRoute-${{ matrix.rid }}
           path: HubRoute-${{ matrix.rid }}.zip
