@@ -1,0 +1,82 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="using:System">
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Light">
+      <SolidColorBrush x:Key="SurfaceBackgroundBrush" Color="#F3F5F2" />
+      <SolidColorBrush x:Key="SurfaceBrush" Color="#FBFCFA" />
+      <SolidColorBrush x:Key="SurfaceElevatedBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="SurfaceMutedBrush" Color="#ECEFEB" />
+      <SolidColorBrush x:Key="SurfaceSubtleBrush" Color="#F1F4F0" />
+      <SolidColorBrush x:Key="TextPrimaryBrush" Color="#202522" />
+      <SolidColorBrush x:Key="TextSecondaryBrush" Color="#4D5751" />
+      <SolidColorBrush x:Key="TextMutedBrush" Color="#6F7772" />
+      <SolidColorBrush x:Key="TextOnAccentBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="BorderBrush" Color="#D9DED9" />
+      <SolidColorBrush x:Key="BorderStrongBrush" Color="#AAB5AF" />
+      <SolidColorBrush x:Key="AccentBrush" Color="#226F5C" />
+      <SolidColorBrush x:Key="AccentHoverBrush" Color="#1B604F" />
+      <SolidColorBrush x:Key="AccentSubtleBrush" Color="#DCECE4" />
+      <SolidColorBrush x:Key="SuccessBrush" Color="#176B52" />
+      <SolidColorBrush x:Key="WarningBrush" Color="#A35C1F" />
+      <SolidColorBrush x:Key="WarningSubtleBrush" Color="#F1E3D2" />
+      <SolidColorBrush x:Key="DangerBrush" Color="#A9473D" />
+      <SolidColorBrush x:Key="DangerSubtleBrush" Color="#F7E6E3" />
+      <SolidColorBrush x:Key="InfoBrush" Color="#426A86" />
+      <SolidColorBrush x:Key="DisabledBrush" Color="#9DA49F" />
+      <BoxShadows x:Key="ShadowSm">0 1 3 0 #22000000</BoxShadows>
+    </ResourceDictionary>
+
+    <ResourceDictionary x:Key="Dark">
+      <SolidColorBrush x:Key="SurfaceBackgroundBrush" Color="#141816" />
+      <SolidColorBrush x:Key="SurfaceBrush" Color="#1B211E" />
+      <SolidColorBrush x:Key="SurfaceElevatedBrush" Color="#202823" />
+      <SolidColorBrush x:Key="SurfaceMutedBrush" Color="#171C19" />
+      <SolidColorBrush x:Key="SurfaceSubtleBrush" Color="#252E29" />
+      <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F2F6F3" />
+      <SolidColorBrush x:Key="TextSecondaryBrush" Color="#C3CCC7" />
+      <SolidColorBrush x:Key="TextMutedBrush" Color="#929D97" />
+      <SolidColorBrush x:Key="TextOnAccentBrush" Color="#0D211A" />
+      <SolidColorBrush x:Key="BorderBrush" Color="#303A35" />
+      <SolidColorBrush x:Key="BorderStrongBrush" Color="#53635B" />
+      <SolidColorBrush x:Key="AccentBrush" Color="#55B596" />
+      <SolidColorBrush x:Key="AccentHoverBrush" Color="#67C7A7" />
+      <SolidColorBrush x:Key="AccentSubtleBrush" Color="#203B32" />
+      <SolidColorBrush x:Key="SuccessBrush" Color="#68C5A5" />
+      <SolidColorBrush x:Key="WarningBrush" Color="#E3A45E" />
+      <SolidColorBrush x:Key="WarningSubtleBrush" Color="#3D2D1F" />
+      <SolidColorBrush x:Key="DangerBrush" Color="#E07A6F" />
+      <SolidColorBrush x:Key="DangerSubtleBrush" Color="#402622" />
+      <SolidColorBrush x:Key="InfoBrush" Color="#7DA9C6" />
+      <SolidColorBrush x:Key="DisabledBrush" Color="#6D7771" />
+      <BoxShadows x:Key="ShadowSm">0 1 2 0 #44000000</BoxShadows>
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
+
+  <sys:Double x:Key="FontSizeXs">11</sys:Double>
+  <sys:Double x:Key="FontSizeSm">12</sys:Double>
+  <sys:Double x:Key="FontSizeBase">14</sys:Double>
+  <sys:Double x:Key="FontSizeMd">16</sys:Double>
+  <sys:Double x:Key="FontSizeLg">18</sys:Double>
+  <sys:Double x:Key="FontSizeXl">22</sys:Double>
+
+  <sys:Double x:Key="Space1">4</sys:Double>
+  <sys:Double x:Key="Space2">8</sys:Double>
+  <sys:Double x:Key="Space3">12</sys:Double>
+  <sys:Double x:Key="Space4">16</sys:Double>
+  <sys:Double x:Key="Space5">20</sys:Double>
+  <sys:Double x:Key="Space6">24</sys:Double>
+  <sys:Double x:Key="Space8">32</sys:Double>
+
+  <Thickness x:Key="PagePadding">30,24</Thickness>
+  <Thickness x:Key="PagePaddingCompact">18,20</Thickness>
+  <Thickness x:Key="ControlPadding">12,8</Thickness>
+  <CornerRadius x:Key="RadiusSm">4</CornerRadius>
+  <CornerRadius x:Key="RadiusMd">6</CornerRadius>
+  <CornerRadius x:Key="RadiusLg">8</CornerRadius>
+  <CornerRadius x:Key="RadiusFull">999</CornerRadius>
+
+  <sys:Double x:Key="IconSizeSm">14</sys:Double>
+  <sys:Double x:Key="IconSizeMd">16</sys:Double>
+  <sys:Double x:Key="IconSizeLg">20</sys:Double>
+</ResourceDictionary>

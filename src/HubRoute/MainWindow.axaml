@@ -1,0 +1,493 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        d:DesignWidth="960"
+        d:DesignHeight="720"
+        x:Class="HubRoute.MainWindow"
+        x:Name="RootWindow"
+        Title="HubRoute"
+        Icon="/Assets/HubRoute.ico"
+        Width="960"
+        Height="720"
+        MinWidth="760"
+        MinHeight="620"
+        WindowStartupLocation="CenterScreen"
+        SizeChanged="OnWindowSizeChanged"
+        Opened="OnWindowOpened">
+  <Grid RowDefinitions="64,*">
+    <Border Grid.Row="0"
+            Background="{DynamicResource SurfaceBrush}"
+            BorderBrush="{DynamicResource BorderBrush}"
+            BorderThickness="0,0,0,1"
+            Padding="22,0">
+      <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10">
+          <Border Width="36"
+                  Height="36"
+                  CornerRadius="{StaticResource RadiusLg}"
+                  Background="{DynamicResource AccentBrush}"
+                  BoxShadow="{DynamicResource ShadowSm}">
+            <LucideIcon Kind="Route"
+                        Size="22"
+                        StrokeWidth="2"
+                        Foreground="{DynamicResource TextOnAccentBrush}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        AutomationProperties.AccessibilityView="Raw" />
+          </Border>
+          <StackPanel VerticalAlignment="Center" Spacing="1">
+            <TextBlock Classes="h1" Text="HubRoute" />
+            <TextBlock Classes="muted" Text="Unity Hub 代理启动器" />
+          </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+          <Button Classes="ghost"
+                  Click="OnOpenDocsClick"
+                  AutomationProperties.Name="打开 Unity 官方代理文档">
+            <StackPanel Orientation="Horizontal" Spacing="7">
+              <LucideIcon Kind="FileCode" AutomationProperties.AccessibilityView="Raw" />
+              <TextBlock Text="官方代理文档" VerticalAlignment="Center" />
+              <LucideIcon Kind="ExternalLink"
+                          Size="{StaticResource IconSizeSm}"
+                          AutomationProperties.AccessibilityView="Raw" />
+            </StackPanel>
+          </Button>
+          <Button Classes="ghost icon"
+                  Click="OnToggleThemeClick"
+                  ToolTip.Tip="切换浅色或深色主题"
+                  AutomationProperties.Name="切换主题">
+            <LucideIcon Kind="SunMoon" AutomationProperties.AccessibilityView="Raw" />
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <Grid Grid.Row="1" ColumnDefinitions="Auto,*">
+      <Border x:Name="StatusRail"
+              Grid.Column="0"
+              Width="236"
+              Padding="18,22,18,16"
+              Background="{DynamicResource SurfaceMutedBrush}"
+              BorderBrush="{DynamicResource BorderBrush}"
+              BorderThickness="0,0,1,0">
+        <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
+          <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+            <TextBlock Classes="label" Text="环境状态" VerticalAlignment="Center" />
+            <Button Grid.Column="1"
+                    Classes="secondary icon"
+                    Click="OnRefreshClick"
+                    ToolTip.Tip="重新检测环境"
+                    AutomationProperties.Name="重新检测环境">
+              <LucideIcon x:Name="RefreshIcon" Kind="RefreshCw" AutomationProperties.AccessibilityView="Raw" />
+            </Button>
+          </Grid>
+
+          <StackPanel Grid.Row="1" Margin="0,24,0,0" Spacing="22">
+            <Grid ColumnDefinitions="32,*" ColumnSpacing="10">
+              <Border Width="32"
+                      Height="32"
+                      CornerRadius="{StaticResource RadiusMd}"
+                      Background="{DynamicResource AccentSubtleBrush}">
+                <LucideIcon Kind="Network"
+                            Foreground="{DynamicResource SuccessBrush}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            AutomationProperties.AccessibilityView="Raw" />
+              </Border>
+              <StackPanel Grid.Column="1" Spacing="2">
+                <TextBlock Classes="muted" Text="系统代理" />
+                <TextBlock x:Name="SystemProxyValue"
+                           Classes="mono"
+                           FontWeight="SemiBold"
+                           Text="检测中"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock x:Name="SystemProxySource"
+                           Classes="muted"
+                           Text="当前平台"
+                           TextTrimming="CharacterEllipsis" />
+              </StackPanel>
+            </Grid>
+
+            <Grid ColumnDefinitions="32,*" ColumnSpacing="10">
+              <Border Width="32"
+                      Height="32"
+                      CornerRadius="{StaticResource RadiusMd}"
+                      Background="{DynamicResource AccentSubtleBrush}">
+                <LucideIcon Kind="CircleGauge"
+                            Foreground="{DynamicResource SuccessBrush}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            AutomationProperties.AccessibilityView="Raw" />
+              </Border>
+              <StackPanel Grid.Column="1" Spacing="2">
+                <TextBlock Classes="muted" Text="Unity Hub" />
+                <TextBlock x:Name="HubStatusValue"
+                           FontSize="{StaticResource FontSizeSm}"
+                           FontWeight="SemiBold"
+                           Text="检测中" />
+                <TextBlock x:Name="HubStatusSource"
+                           Classes="muted"
+                           Text="等待安装记录"
+                           TextTrimming="CharacterEllipsis" />
+              </StackPanel>
+            </Grid>
+          </StackPanel>
+
+          <StackPanel Grid.Row="2" Margin="0,30,0,0" Spacing="14">
+            <Border Classes="divider" />
+            <Grid ColumnDefinitions="20,*" ColumnSpacing="7">
+              <LucideIcon Kind="ShieldCheck"
+                          Foreground="{DynamicResource AccentBrush}"
+                          AutomationProperties.AccessibilityView="Raw" />
+              <StackPanel Grid.Column="1" Spacing="1">
+                <TextBlock Classes="muted" Text="代理作用域" />
+                <TextBlock FontSize="{StaticResource FontSizeSm}"
+                           FontWeight="SemiBold"
+                           Text="仅 Hub 子进程" />
+              </StackPanel>
+            </Grid>
+            <Grid ColumnDefinitions="20,*" ColumnSpacing="7">
+              <LucideIcon Kind="SquareTerminal"
+                          Foreground="{DynamicResource AccentBrush}"
+                          AutomationProperties.AccessibilityView="Raw" />
+              <StackPanel Grid.Column="1" Spacing="1">
+                <TextBlock Classes="muted" Text="系统设置" />
+                <TextBlock FontSize="{StaticResource FontSizeSm}"
+                           FontWeight="SemiBold"
+                           Text="不会修改" />
+              </StackPanel>
+            </Grid>
+          </StackPanel>
+
+          <StackPanel Grid.Row="4" Spacing="7">
+            <StackPanel Orientation="Horizontal" Spacing="7">
+              <Ellipse Width="7" Height="7" Fill="{DynamicResource SuccessBrush}" />
+              <TextBlock Classes="muted" Text="MIT 开源软件" />
+            </StackPanel>
+            <TextBlock x:Name="PlatformLabel" Classes="muted" Text="Desktop" />
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <ScrollViewer Grid.Column="1"
+                    HorizontalScrollBarVisibility="Disabled"
+                    VerticalScrollBarVisibility="Auto">
+        <StackPanel x:Name="MainContent"
+                    MaxWidth="840"
+                    Margin="{StaticResource PagePadding}"
+                    Spacing="0">
+          <StackPanel Spacing="16">
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel Orientation="Horizontal" Spacing="9" VerticalAlignment="Center">
+                <TextBlock Classes="muted mono" Text="01" />
+                <TextBlock Classes="h2" Text="连接方式" />
+              </StackPanel>
+              <Border x:Name="ConnectionBadge"
+                      Grid.Column="1"
+                      Classes="statusPill">
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                  <LucideIcon x:Name="ConnectionBadgeIcon"
+                              Kind="SquareActivity"
+                              Size="{StaticResource IconSizeSm}"
+                              Foreground="{DynamicResource AccentBrush}"
+                              AutomationProperties.AccessibilityView="Raw" />
+                  <TextBlock x:Name="ConnectionBadgeText"
+                             FontSize="{StaticResource FontSizeXs}"
+                             FontWeight="SemiBold"
+                             Text="待测试" />
+                </StackPanel>
+              </Border>
+            </Grid>
+
+            <Border Width="410"
+                    MaxWidth="410"
+                    HorizontalAlignment="Left"
+                    Padding="3"
+                    CornerRadius="{StaticResource RadiusLg}"
+                    Background="{DynamicResource SurfaceMutedBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1">
+              <Grid ColumnDefinitions="*,*,*">
+                <ToggleButton x:Name="AutoModeButton"
+                              Grid.Column="0"
+                              Classes="segment"
+                              IsChecked="True"
+                              Click="OnModeToggleClick"
+                              AutomationProperties.Name="自动检测代理模式">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <LucideIcon Kind="Network" Size="{StaticResource IconSizeSm}" AutomationProperties.AccessibilityView="Raw" />
+                    <TextBlock Text="自动检测" />
+                  </StackPanel>
+                </ToggleButton>
+                <ToggleButton x:Name="ManualModeButton"
+                              Grid.Column="1"
+                              Classes="segment"
+                              Click="OnModeToggleClick"
+                              AutomationProperties.Name="手动代理模式">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <LucideIcon Kind="Route" Size="{StaticResource IconSizeSm}" AutomationProperties.AccessibilityView="Raw" />
+                    <TextBlock Text="手动代理" />
+                  </StackPanel>
+                </ToggleButton>
+                <ToggleButton x:Name="DirectModeButton"
+                              Grid.Column="2"
+                              Classes="segment"
+                              Click="OnModeToggleClick"
+                              AutomationProperties.Name="直连模式">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <LucideIcon Kind="Unplug" Size="{StaticResource IconSizeSm}" AutomationProperties.AccessibilityView="Raw" />
+                    <TextBlock Text="直连" />
+                  </StackPanel>
+                </ToggleButton>
+              </Grid>
+            </Border>
+
+            <Border x:Name="AutoProxyPanel"
+                    MinHeight="68"
+                    Padding="13,10"
+                    Background="{DynamicResource SurfaceSubtleBrush}"
+                    BorderBrush="{DynamicResource AccentBrush}"
+                    BorderThickness="3,0,0,0">
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="14">
+                <StackPanel Spacing="3" VerticalAlignment="Center">
+                  <TextBlock Classes="label" Text="检测结果" />
+                  <TextBlock x:Name="DetectedProxyValue"
+                             Classes="mono"
+                             FontWeight="SemiBold"
+                             Text="正在读取系统代理"
+                             TextTrimming="CharacterEllipsis" />
+                  <TextBlock x:Name="DetectedProxySource" Classes="muted" Text="当前平台" />
+                </StackPanel>
+                <Button x:Name="AutoTestButton"
+                        Grid.Column="1"
+                        Classes="secondary"
+                        Click="OnTestProxyClick"
+                        AutomationProperties.Name="测试自动检测到的代理">
+                  <StackPanel Orientation="Horizontal" Spacing="7">
+                    <LucideIcon Kind="SquareActivity" AutomationProperties.AccessibilityView="Raw" />
+                    <TextBlock Text="测试连接" />
+                  </StackPanel>
+                </Button>
+              </Grid>
+            </Border>
+
+            <Grid x:Name="ManualProxyPanel"
+                  IsVisible="False"
+                  ColumnDefinitions="*,Auto"
+                  ColumnSpacing="12">
+              <StackPanel Spacing="5">
+                <TextBlock x:Name="ProxyAddressLabel" Classes="label" Text="HTTP 代理地址" />
+                <TextBox x:Name="ManualProxyTextBox"
+                         Classes="mono"
+                         Text="http://127.0.0.1:7890"
+                         PlaceholderText="http://127.0.0.1:7890"
+                         TextChanged="OnManualProxyTextChanged"
+                         AutomationProperties.Name="HTTP 代理地址"
+                         AutomationProperties.AutomationId="proxy.address" />
+              </StackPanel>
+              <Button Grid.Column="1"
+                      Classes="secondary"
+                      Margin="0,18,0,0"
+                      Click="OnTestProxyClick"
+                      AutomationProperties.Name="测试手动代理">
+                <StackPanel Orientation="Horizontal" Spacing="7">
+                  <LucideIcon Kind="SquareActivity" AutomationProperties.AccessibilityView="Raw" />
+                  <TextBlock Text="测试连接" />
+                </StackPanel>
+              </Button>
+            </Grid>
+
+            <Border x:Name="DirectProxyPanel"
+                    IsVisible="False"
+                    MinHeight="62"
+                    Padding="13,10"
+                    Background="{DynamicResource WarningSubtleBrush}"
+                    BorderBrush="{DynamicResource WarningBrush}"
+                    BorderThickness="3,0,0,0">
+              <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                <LucideIcon Kind="CircleAlert"
+                            Foreground="{DynamicResource WarningBrush}"
+                            AutomationProperties.AccessibilityView="Raw" />
+                <StackPanel Spacing="2">
+                  <TextBlock FontSize="{StaticResource FontSizeSm}"
+                             FontWeight="SemiBold"
+                             Text="不注入代理环境变量" />
+                  <TextBlock Classes="muted" Text="Hub 将按自身网络配置连接。" />
+                </StackPanel>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+
+          <Border Classes="divider" Margin="0,24" />
+
+          <StackPanel Spacing="16">
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel Orientation="Horizontal" Spacing="9" VerticalAlignment="Center">
+                <TextBlock Classes="muted mono" Text="02" />
+                <TextBlock Classes="h2" Text="Unity Hub" />
+              </StackPanel>
+              <Border x:Name="HubPathBadge" Grid.Column="1" Classes="statusPill warningPill">
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                  <LucideIcon Kind="CircleAlert"
+                              Size="{StaticResource IconSizeSm}"
+                              Foreground="{DynamicResource WarningBrush}"
+                              AutomationProperties.AccessibilityView="Raw" />
+                  <TextBlock x:Name="HubPathBadgeText"
+                             FontSize="{StaticResource FontSizeXs}"
+                             FontWeight="SemiBold"
+                             Text="需要选择" />
+                </StackPanel>
+              </Border>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+              <StackPanel Spacing="5">
+                <TextBlock x:Name="HubPathLabel" Classes="label" Text="程序路径" />
+                <TextBox x:Name="HubPathTextBox"
+                         Classes="mono"
+                         PlaceholderText="选择 Unity Hub 可执行程序"
+                         TextChanged="OnHubPathTextChanged"
+                         AutomationProperties.Name="Unity Hub 程序路径"
+                         AutomationProperties.AutomationId="hub.path" />
+              </StackPanel>
+              <Button Grid.Column="1"
+                      Classes="secondary icon"
+                      Width="38"
+                      Height="38"
+                      Margin="0,18,0,0"
+                      Click="OnBrowseHubClick"
+                      ToolTip.Tip="选择 Unity Hub"
+                      AutomationProperties.Name="选择 Unity Hub 程序">
+                <LucideIcon Kind="FolderOpen" AutomationProperties.AccessibilityView="Raw" />
+              </Button>
+            </Grid>
+
+            <Border Padding="13,11"
+                    Background="{DynamicResource SurfaceSubtleBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="{StaticResource RadiusMd}">
+              <Grid RowDefinitions="Auto,Auto,Auto">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="14">
+                  <StackPanel Spacing="3" VerticalAlignment="Center">
+                    <TextBlock FontSize="{StaticResource FontSizeSm}"
+                               FontWeight="SemiBold"
+                               Text="下载国际版 Unity Hub" />
+                    <TextBlock x:Name="HubDownloadDescription"
+                               Classes="muted"
+                               Text="从 Unity 官方 CDN 获取当前平台安装包"
+                               TextWrapping="Wrap" />
+                  </StackPanel>
+                  <Button x:Name="DownloadHubButton"
+                          Grid.Column="1"
+                          Classes="secondary"
+                          Click="OnDownloadHubClick"
+                          AutomationProperties.AutomationId="hub.download"
+                          AutomationProperties.Name="下载国际版 Unity Hub">
+                    <StackPanel Orientation="Horizontal" Spacing="7">
+                      <LucideIcon x:Name="DownloadHubIcon"
+                                  Kind="Download"
+                                  AutomationProperties.AccessibilityView="Raw" />
+                      <TextBlock x:Name="DownloadHubButtonText" Text="一键下载" />
+                    </StackPanel>
+                  </Button>
+                </Grid>
+
+                <ProgressBar x:Name="HubDownloadProgress"
+                             Grid.Row="1"
+                             IsVisible="False"
+                             Height="5"
+                             Margin="0,11,0,0"
+                             Minimum="0"
+                             Maximum="100"
+                             AutomationProperties.Name="Unity Hub 下载进度" />
+
+                <Grid Grid.Row="2"
+                      Margin="0,8,0,0"
+                      ColumnDefinitions="*,Auto"
+                      ColumnSpacing="10">
+                  <TextBlock x:Name="HubDownloadStatus"
+                             Classes="muted mono"
+                             Text="使用当前连接方式下载"
+                             TextTrimming="CharacterEllipsis"
+                             VerticalAlignment="Center" />
+                  <Button x:Name="OpenHubInstallerButton"
+                          Grid.Column="1"
+                          Classes="ghost"
+                          IsVisible="False"
+                          Click="OnOpenHubInstallerClick"
+                          AutomationProperties.Name="打开 Unity Hub 安装包">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <LucideIcon Kind="PackageOpen"
+                                  Size="{StaticResource IconSizeSm}"
+                                  AutomationProperties.AccessibilityView="Raw" />
+                      <TextBlock Text="打开安装包" />
+                    </StackPanel>
+                  </Button>
+                </Grid>
+              </Grid>
+            </Border>
+          </StackPanel>
+
+          <Border Classes="divider" Margin="0,24,0,18" />
+
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="18">
+            <StackPanel Spacing="3" VerticalAlignment="Center">
+              <TextBlock Classes="muted" Text="即将使用" />
+              <TextBlock x:Name="LaunchSummaryText"
+                         Classes="mono"
+                         FontWeight="SemiBold"
+                         Text="等待代理配置"
+                         TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Spacing="8" HorizontalAlignment="Right">
+              <CheckBox x:Name="ExitAfterLaunchCheckBox"
+                        Content="启动后退出 HubRoute"
+                        IsChecked="True"
+                        HorizontalAlignment="Right" />
+              <Button x:Name="LaunchButton"
+                      Classes="primary"
+                      Click="OnLaunchHubClick"
+                      AutomationProperties.AutomationId="hub.launch"
+                      AutomationProperties.Name="启动 Unity Hub">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <LucideIcon Kind="Play"
+                              Foreground="{DynamicResource TextOnAccentBrush}"
+                              AutomationProperties.AccessibilityView="Raw" />
+                  <TextBlock x:Name="LaunchButtonText" Text="启动 Unity Hub" />
+                </StackPanel>
+              </Button>
+            </StackPanel>
+          </Grid>
+
+          <Border Classes="divider" Margin="0,20,0,18" />
+
+          <StackPanel Spacing="10">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Classes="h2" Text="运行记录" />
+              <TextBlock x:Name="LogCountText" Grid.Column="1" Classes="muted mono" Text="0 条" />
+            </Grid>
+            <StackPanel x:Name="ActivityLogPanel"
+                        Spacing="0"
+                        AutomationProperties.Name="运行记录"
+                        AutomationProperties.LiveSetting="Polite">
+              <Grid x:Name="EmptyLogRow" MinHeight="34" ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                <LucideIcon Kind="LoaderCircle"
+                            Foreground="{DynamicResource TextMutedBrush}"
+                            VerticalAlignment="Center"
+                            AutomationProperties.AccessibilityView="Raw" />
+                <TextBlock Grid.Column="1"
+                           Classes="muted"
+                           Text="正在读取本机环境"
+                           VerticalAlignment="Center" />
+              </Grid>
+            </StackPanel>
+          </StackPanel>
+        </StackPanel>
+      </ScrollViewer>
+    </Grid>
+  </Grid>
+</Window>
