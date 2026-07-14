@@ -6,11 +6,19 @@
 
 ![HubRoute 主窗口](docs/screenshots/main-window.png)
 
-## 实际验证
+## 功能演示与适用范围
 
 通过 HubRoute 启动 Unity Hub 后，可以正常访问 Unity 国际服务并下载 Unity 编辑器。下图为 Unity Hub 正在下载 Unity 6.5 编辑器：
 
 ![通过 Unity Hub 下载 Unity 编辑器](docs/screenshots/unity-hub-editor-download.png)
+
+HubRoute 注入的 HTTP_PROXY / HTTPS_PROXY 会沿操作系统的子进程环境继承：
+
+~~~text
+HubRoute -> Unity Hub -> Unity Editor -> Unity Package Manager -> Git (HTTPS)
+~~~
+
+因此，从 HubRoute 启动的 Unity Hub 再打开 Unity Editor 时，Editor、Unity Package Manager 及其调用的 Git 进程通常也会使用相同代理，可改善通过 HTTPS 下载包和拉取 Git 依赖的连通性。该作用域不包含已经运行的 Hub/Editor、通过 VCC 或快捷方式直接打开的 Editor，也不适用于 SSH Git 地址；实际效果仍取决于 Unity 版本、代理规则和网络环境。
 
 ## 功能
 
@@ -18,7 +26,7 @@
 - 探测常见本地 HTTP 代理端口，也支持手动填写代理地址。
 - 仅向 Unity Hub 子进程注入 HTTP_PROXY / HTTPS_PROXY，不修改系统全局设置。
 - 自动定位常见路径中的 Unity Hub，并支持手动选择程序。
-- 从 Unity 官方 CDN 下载 Windows 或 macOS 的国际版 Unity Hub 安装包。
+- 根据当前操作系统和 CPU 架构，从 Unity 官方 CDN 下载对应的 Windows 或 macOS 国际版 Unity Hub 安装包。
 - 下载完成后使用操作系统原生信任机制校验安装包签名。
 - 提供自动代理、手动代理和直连三种模式。
 
