@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-HubRoute 当前处于 alpha 阶段，仅维护最新的 0.1.x 版本和 main 分支。
+HubRoute 仅维护最新的 0.1.x 版本和 main 分支。
 
 ## Reporting a vulnerability
 

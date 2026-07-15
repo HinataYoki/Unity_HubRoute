@@ -2,7 +2,7 @@
 
 轻量、开源的 Unity Hub 代理启动器，面向需要通过已有本地代理访问 Unity 国际服务的桌面用户。
 
-> 当前版本：0.1.0-alpha。请先阅读下方的限制与安全说明。
+> 当前稳定版：0.1.0。请先阅读下方的限制与安全说明。
 
 ![HubRoute 主窗口](docs/screenshots/main-window.png)
 
@@ -70,7 +70,7 @@ http://127.0.0.1:7890
 需要 [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)。
 
 ~~~powershell
-git clone https://github.com/HinataYoki/HubRoute.git
+git clone https://github.com/HinataYoki/Unity_HubRoute.git HubRoute
 cd HubRoute
 dotnet restore HubRoute.slnx
 dotnet test HubRoute.slnx
@@ -94,7 +94,7 @@ dotnet build HubRoute.slnx -c Release
 - linux-x64
 - linux-arm64
 
-自包含包不要求用户预装 .NET Runtime。Alpha 阶段的 HubRoute 自身尚未进行商业代码签名，Windows SmartScreen 或 macOS Gatekeeper 可能显示未知开发者提示；请从本仓库 Releases 下载并核对发布来源。
+自包含包不要求用户预装 .NET Runtime。HubRoute 自身尚未进行商业代码签名，Windows SmartScreen 或 macOS Gatekeeper 可能显示未知开发者提示；请从本仓库 Releases 下载并核对发布来源。
 
 每个发布 ZIP 只包含对应平台的主可执行文件，不包含 PDB 等调试符号。
 

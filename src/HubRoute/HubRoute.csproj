@@ -10,7 +10,7 @@
     <Description>Unity Hub proxy launcher and official installer downloader.</Description>
     <Copyright>Copyright (c) 2026 HinataYoki</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/HinataYoki/HubRoute</RepositoryUrl>
+    <RepositoryUrl>https://github.com/HinataYoki/Unity_HubRoute</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <NeutralLanguage>zh-CN</NeutralLanguage>
     <ApplicationIcon>Assets\HubRoute.ico</ApplicationIcon>
