@@ -1,0 +1,48 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="HubRoute.EditorRunningDialog"
+        Title="Unity Editor 正在运行"
+        Icon="/Assets/HubRoute.ico"
+        Width="520"
+        SizeToContent="Height"
+        CanResize="False"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner">
+  <Border Padding="24">
+    <StackPanel Spacing="20">
+      <StackPanel Spacing="7">
+        <TextBlock Classes="h1" Text="检测到正在运行的 Unity Editor" />
+        <TextBlock x:Name="EditorCountText"
+                   Foreground="{DynamicResource TextSecondaryBrush}"
+                   TextWrapping="Wrap" />
+      </StackPanel>
+
+      <Border Padding="14"
+              CornerRadius="{StaticResource RadiusMd}"
+              Background="{DynamicResource WarningSubtleBrush}"
+              BorderBrush="{DynamicResource WarningBrush}"
+              BorderThickness="1">
+        <TextBlock Foreground="{DynamicResource TextSecondaryBrush}"
+                   Text="当前 Editor 已经在没有本次代理变量的环境中运行。继续启动 Hub 不会修改该 Editor 的代理，也不会自动关闭它。"
+                   TextWrapping="Wrap" />
+      </Border>
+
+      <TextBlock Classes="muted"
+                 Text="建议取消后保存并关闭项目，再通过重新启动的 Unity Hub 打开。"
+                 TextWrapping="Wrap" />
+
+      <StackPanel Orientation="Horizontal"
+                  HorizontalAlignment="Right"
+                  Spacing="10">
+        <Button x:Name="CancelButton"
+                Classes="secondary"
+                Content="取消"
+                IsCancel="True"
+                Click="OnCancelClick" />
+        <Button Classes="primary"
+                Content="仍然启动 Hub"
+                Click="OnContinueClick" />
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</Window>

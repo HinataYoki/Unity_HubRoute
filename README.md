@@ -25,6 +25,7 @@ HubRoute -> Unity Hub -> Unity Editor -> Unity Package Manager -> Git (HTTPS)
 - 自动读取 Windows、macOS 和 Linux 的显式系统代理。
 - 探测常见本地 HTTP 代理端口，也支持手动填写代理地址。
 - 仅向 Unity Hub 子进程注入 HTTP_PROXY / HTTPS_PROXY，不修改系统全局设置。
+- 启动前自动关闭已经运行的 Unity Hub，再以所选代理环境启动新实例。
 - 自动定位常见路径中的 Unity Hub，并支持手动选择程序。
 - 根据当前操作系统和 CPU 架构，从 Unity 官方 CDN 下载对应的 Windows 或 macOS 国际版 Unity Hub 安装包。
 - 下载完成后使用操作系统原生信任机制校验安装包签名。
@@ -35,6 +36,8 @@ HubRoute -> Unity Hub -> Unity Editor -> Unity Package Manager -> Git (HTTPS)
 HubRoute **不是代理软件，也不提供代理节点或网络隧道**。使用自动或手动代理模式前，必须先启动 Clash、Mihomo、V2Ray 等本地代理，或确保企业代理已经可用。
 
 HubRoute 的端口测试只确认代理端口可连接，不代表 Unity 的登录、许可证和下载接口一定可用。最终连通性仍取决于代理规则、节点和网络环境。
+
+为确保代理变量能够注入，点击“启动 Unity Hub”时会自动关闭已运行的 Unity Hub 及其 Helper 进程，但不会关闭 Unity Editor。检测到 Editor 正在运行时，HubRoute 会先提醒现有 Editor 无法继承新代理，并由用户选择取消或继续。正在进行的 Hub 下载会因 Hub 重启而中断；已经打开的 Editor 需要保存并关闭，再从重新启动后的 Hub 打开才能继承代理。
 
 ## 平台支持
 

@@ -267,13 +267,38 @@ public partial class MainWindow : Window
     }
 
     /// <summary>Launches Unity Hub with the selected process-scoped proxy configuration.</summary>
-    private void OnLaunchHubClick(object? sender, RoutedEventArgs e)
+    private async void OnLaunchHubClick(object? sender, RoutedEventArgs e)
     {
         try
         {
-            SetBusy(true, launching: true);
             var proxy = GetActiveProxyUri();
-            var result = _hubLauncher.Launch(HubPathTextBox.Text ?? string.Empty, proxy);
+            var runningEditorCount = HubLauncher.CountRunningUnityEditors();
+            if (runningEditorCount > 0)
+            {
+                var continueLaunch = await new EditorRunningDialog(runningEditorCount).ShowDialog<bool>(this);
+                if (!continueLaunch)
+                {
+                    AddLog("检测到正在运行的 Unity Editor，已取消启动 Unity Hub", LogTone.Warning);
+                    return;
+                }
+
+                AddLog(
+                    "现有 Unity Editor 不会继承新代理；请保存并从重新启动的 Hub 再打开项目",
+                    LogTone.Warning);
+            }
+
+            SetBusy(true, launching: true);
+            var result = await _hubLauncher.LaunchAsync(
+                HubPathTextBox.Text ?? string.Empty,
+                proxy,
+                _lifetimeCancellation.Token);
+            if (result.StoppedProcessCount > 0)
+            {
+                AddLog(
+                    $"检测到已运行的 Unity Hub，已关闭 {result.StoppedProcessCount} 个相关进程",
+                    LogTone.Warning);
+            }
+
             AddLog(
                 $"Unity Hub 已启动（PID {result.ProcessId}，{result.RouteDescription}）",
                 LogTone.Success);
