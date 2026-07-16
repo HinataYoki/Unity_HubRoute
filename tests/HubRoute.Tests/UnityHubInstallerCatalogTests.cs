@@ -1,16 +1,15 @@
 using System.Runtime.InteropServices;
-using HubRoute.Models;
 using HubRoute.Services;
 
 namespace HubRoute.Tests;
 
-public sealed class UnityHubDownloadServiceTests
+public sealed class UnityHubInstallerCatalogTests
 {
     /// <summary>Uses Unity's official CDN when the runtime platform has a supported installer.</summary>
     [Fact]
     public void GetCurrentPlatform_DesktopPlatform_ReturnsOfficialInstaller()
     {
-        var result = UnityHubDownloadService.GetCurrentPlatform();
+        var result = UnityHubInstallerCatalog.GetCurrentPlatform();
 
         if (OperatingSystem.IsLinux()
             || RuntimeInformation.OSArchitecture is not (Architecture.X64 or Architecture.Arm64))
@@ -34,18 +33,18 @@ public sealed class UnityHubDownloadServiceTests
 
     /// <summary>Maps every supported platform and architecture without consulting the host machine.</summary>
     [Fact]
-    public void GetPlatformDownload_AllSupportedCombinations_ReturnExpectedFiles()
+    public void GetPlatformInstaller_AllSupportedCombinations_ReturnExpectedFiles()
     {
-        var windowsX64 = UnityHubDownloadService.GetPlatformDownload(
+        var windowsX64 = UnityHubInstallerCatalog.GetPlatformInstaller(
             OSPlatform.Windows,
             Architecture.X64);
-        var windowsArm64 = UnityHubDownloadService.GetPlatformDownload(
+        var windowsArm64 = UnityHubInstallerCatalog.GetPlatformInstaller(
             OSPlatform.Windows,
             Architecture.Arm64);
-        var macX64 = UnityHubDownloadService.GetPlatformDownload(
+        var macX64 = UnityHubInstallerCatalog.GetPlatformInstaller(
             OSPlatform.OSX,
             Architecture.X64);
-        var macArm64 = UnityHubDownloadService.GetPlatformDownload(
+        var macArm64 = UnityHubInstallerCatalog.GetPlatformInstaller(
             OSPlatform.OSX,
             Architecture.Arm64);
 
@@ -61,7 +60,7 @@ public sealed class UnityHubDownloadServiceTests
     [InlineData("windows", Architecture.Arm)]
     [InlineData("linux", Architecture.X64)]
     [InlineData("linux", Architecture.Arm64)]
-    public void GetPlatformDownload_UnsupportedCombination_ReturnsNull(
+    public void GetPlatformInstaller_UnsupportedCombination_ReturnsNull(
         string platformName,
         Architecture architecture)
     {
@@ -69,34 +68,6 @@ public sealed class UnityHubDownloadServiceTests
             ? OSPlatform.Windows
             : OSPlatform.Linux;
 
-        Assert.Null(UnityHubDownloadService.GetPlatformDownload(platform, architecture));
-    }
-
-    /// <summary>Separates decoded proxy credentials from the proxy server address.</summary>
-    [Fact]
-    public void CreateProxy_CredentialedUri_ConfiguresNetworkCredential()
-    {
-        var proxy = UnityHubDownloadService.CreateProxy(
-            new Uri("http://user:p%40ss@proxy.example:8080"));
-
-        Assert.Equal("http://proxy.example:8080/", proxy.Address?.ToString());
-        var credential = proxy.Credentials?.GetCredential(proxy.Address!, "Basic");
-        Assert.NotNull(credential);
-        Assert.Equal("user", credential.UserName);
-        Assert.Equal("p@ss", credential.Password);
-    }
-
-    /// <summary>Calculates byte progress only when a positive total length is available.</summary>
-    [Theory]
-    [InlineData(50, 200, 25.0)]
-    [InlineData(0, 0, null)]
-    public void Percentage_ContentLength_ReturnsExpectedValue(
-        long bytesReceived,
-        long totalBytes,
-        double? expected)
-    {
-        var progress = new DownloadProgress(bytesReceived, totalBytes);
-
-        Assert.Equal(expected, progress.Percentage);
+        Assert.Null(UnityHubInstallerCatalog.GetPlatformInstaller(platform, architecture));
     }
 }

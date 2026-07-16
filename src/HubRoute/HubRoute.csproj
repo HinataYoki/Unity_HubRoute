@@ -4,10 +4,10 @@
     <TargetFramework>net10.0</TargetFramework>
     <AssemblyName>HubRoute</AssemblyName>
     <RootNamespace>HubRoute</RootNamespace>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Product>HubRoute</Product>
     <Authors>HinataYoki</Authors>
-    <Description>Unity Hub proxy launcher and official installer downloader.</Description>
+    <Description>Unity Hub proxy launcher and official download link opener.</Description>
     <Copyright>Copyright (c) 2026 HinataYoki</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/HinataYoki/Unity_HubRoute</RepositoryUrl>

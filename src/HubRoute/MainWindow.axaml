@@ -370,64 +370,29 @@
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="1"
                     CornerRadius="{StaticResource RadiusMd}">
-              <Grid RowDefinitions="Auto,Auto,Auto">
-                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="14">
-                  <StackPanel Spacing="3" VerticalAlignment="Center">
-                    <TextBlock FontSize="{StaticResource FontSizeSm}"
-                               FontWeight="SemiBold"
-                               Text="下载国际版 Unity Hub" />
-                    <TextBlock x:Name="HubDownloadDescription"
-                               Classes="muted"
-                               Text="从 Unity 官方 CDN 获取当前平台安装包"
-                               TextWrapping="Wrap" />
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="14">
+                <StackPanel Spacing="3" VerticalAlignment="Center">
+                  <TextBlock FontSize="{StaticResource FontSizeSm}"
+                             FontWeight="SemiBold"
+                             Text="下载国际版 Unity Hub" />
+                  <TextBlock x:Name="HubDownloadDescription"
+                             Classes="muted"
+                             Text="在浏览器中获取当前平台安装包"
+                             TextWrapping="Wrap" />
+                </StackPanel>
+                <Button x:Name="DownloadHubButton"
+                        Grid.Column="1"
+                        Classes="secondary"
+                        Click="OnOpenHubDownloadClick"
+                        AutomationProperties.AutomationId="hub.download"
+                        AutomationProperties.Name="在浏览器中下载 Unity Hub">
+                  <StackPanel Orientation="Horizontal" Spacing="7">
+                    <LucideIcon x:Name="DownloadHubIcon"
+                                Kind="ExternalLink"
+                                AutomationProperties.AccessibilityView="Raw" />
+                    <TextBlock x:Name="DownloadHubButtonText" Text="浏览器下载" />
                   </StackPanel>
-                  <Button x:Name="DownloadHubButton"
-                          Grid.Column="1"
-                          Classes="secondary"
-                          Click="OnDownloadHubClick"
-                          AutomationProperties.AutomationId="hub.download"
-                          AutomationProperties.Name="下载国际版 Unity Hub">
-                    <StackPanel Orientation="Horizontal" Spacing="7">
-                      <LucideIcon x:Name="DownloadHubIcon"
-                                  Kind="Download"
-                                  AutomationProperties.AccessibilityView="Raw" />
-                      <TextBlock x:Name="DownloadHubButtonText" Text="一键下载" />
-                    </StackPanel>
-                  </Button>
-                </Grid>
-
-                <ProgressBar x:Name="HubDownloadProgress"
-                             Grid.Row="1"
-                             IsVisible="False"
-                             Height="5"
-                             Margin="0,11,0,0"
-                             Minimum="0"
-                             Maximum="100"
-                             AutomationProperties.Name="Unity Hub 下载进度" />
-
-                <Grid Grid.Row="2"
-                      Margin="0,8,0,0"
-                      ColumnDefinitions="*,Auto"
-                      ColumnSpacing="10">
-                  <TextBlock x:Name="HubDownloadStatus"
-                             Classes="muted mono"
-                             Text="使用当前连接方式下载"
-                             TextTrimming="CharacterEllipsis"
-                             VerticalAlignment="Center" />
-                  <Button x:Name="OpenHubInstallerButton"
-                          Grid.Column="1"
-                          Classes="ghost"
-                          IsVisible="False"
-                          Click="OnOpenHubInstallerClick"
-                          AutomationProperties.Name="打开 Unity Hub 安装包">
-                    <StackPanel Orientation="Horizontal" Spacing="6">
-                      <LucideIcon Kind="PackageOpen"
-                                  Size="{StaticResource IconSizeSm}"
-                                  AutomationProperties.AccessibilityView="Raw" />
-                      <TextBlock Text="打开安装包" />
-                    </StackPanel>
-                  </Button>
-                </Grid>
+                </Button>
               </Grid>
             </Border>
           </StackPanel>

@@ -17,13 +17,9 @@ public partial class MainWindow : Window
 {
     private readonly ProxyDiscoveryService _proxyDiscovery = new();
     private readonly UnityHubLocator _hubLocator = new();
-    private readonly UnityHubDownloadService _hubDownloadService = new();
-    private readonly InstallerVerificationService _installerVerificationService = new();
     private readonly HubLauncher _hubLauncher;
     private readonly CancellationTokenSource _lifetimeCancellation = new();
-    private CancellationTokenSource? _downloadCancellation;
     private EnvironmentSnapshot? _snapshot;
-    private string? _downloadedInstallerPath;
     private ProxyMode _proxyMode = ProxyMode.Auto;
     private int _logCount;
     private bool _isBusy;
@@ -34,7 +30,7 @@ public partial class MainWindow : Window
         _hubLauncher = new HubLauncher(_hubLocator);
         InitializeComponent();
         PlatformLabel.Text = GetPlatformName();
-        ConfigureHubDownload();
+        ConfigureHubInstaller();
         UpdateModePanels();
         UpdateLaunchState();
     }
@@ -42,8 +38,6 @@ public partial class MainWindow : Window
     /// <summary>Releases any in-flight platform queries when the window closes.</summary>
     protected override void OnClosed(EventArgs e)
     {
-        _downloadCancellation?.Cancel();
-        _downloadCancellation?.Dispose();
         _lifetimeCancellation.Cancel();
         _lifetimeCancellation.Dispose();
         base.OnClosed(e);
@@ -173,17 +167,11 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>Downloads or cancels the official Unity Hub installer using the selected route.</summary>
-    private async void OnDownloadHubClick(object? sender, RoutedEventArgs e)
+    /// <summary>Opens the official Unity Hub installer URL in the default browser.</summary>
+    private async void OnOpenHubDownloadClick(object? sender, RoutedEventArgs e)
     {
-        if (_downloadCancellation is not null)
-        {
-            _downloadCancellation.Cancel();
-            return;
-        }
-
-        var download = UnityHubDownloadService.GetCurrentPlatform();
-        if (download is null)
+        var installer = UnityHubInstallerCatalog.GetCurrentPlatform();
+        if (installer is null)
         {
             await OpenHubInstallationDocsAsync();
             return;
@@ -191,78 +179,16 @@ public partial class MainWindow : Window
 
         try
         {
-            var proxy = GetActiveProxyUri();
-            if (_proxyMode != ProxyMode.Direct && proxy is null)
-            {
-                throw new InvalidOperationException("当前模式尚未配置可用代理。");
-            }
-
-            _downloadCancellation = CancellationTokenSource.CreateLinkedTokenSource(
-                _lifetimeCancellation.Token);
-            SetDownloadState(true);
-            HubDownloadStatus.Text = $"正在连接 Unity 官方 CDN · {GetRouteDescription(proxy)}";
-            var destinationDirectory = await GetDownloadDirectoryAsync();
-            var progress = new Progress<DownloadProgress>(UpdateDownloadProgress);
-            var result = await _hubDownloadService.DownloadAsync(
-                proxy,
-                destinationDirectory,
-                progress,
-                _downloadCancellation.Token);
-
-            HubDownloadStatus.Text = "正在验证 Unity 官方数字签名";
-            var verification = await _installerVerificationService.VerifyAsync(
-                result.FilePath,
-                _downloadCancellation.Token);
-            if (!verification.IsTrusted)
-            {
-                File.Delete(result.FilePath);
-                throw new InvalidDataException($"安装包安全校验失败：{verification.Description}");
-            }
-
-            _downloadedInstallerPath = result.FilePath;
-            HubDownloadProgress.IsIndeterminate = false;
-            HubDownloadProgress.Value = 100;
-            HubDownloadStatus.Text = $"已保存到 {result.FilePath}";
-            ToolTip.SetTip(HubDownloadStatus, result.FilePath);
-            OpenHubInstallerButton.IsVisible = true;
+            var opened = await Launcher.LaunchUriAsync(installer.DownloadUri);
             AddLog(
-                $"Unity Hub 安装包下载并验证完成：{verification.Description}",
-                LogTone.Success);
-        }
-        catch (OperationCanceledException) when (_downloadCancellation?.IsCancellationRequested == true)
-        {
-            HubDownloadStatus.Text = "下载已取消";
-            AddLog("Unity Hub 安装包下载已取消。", LogTone.Warning);
+                opened
+                    ? $"已在浏览器中打开 Unity Hub {installer.PlatformLabel} 下载"
+                    : "无法打开 Unity Hub 下载地址。",
+                opened ? LogTone.Success : LogTone.Warning);
         }
         catch (Exception exception)
         {
-            HubDownloadStatus.Text = $"下载失败：{GetErrorMessage(exception)}";
-            ToolTip.SetTip(HubDownloadStatus, HubDownloadStatus.Text);
-            AddLog($"Unity Hub 下载失败：{GetErrorMessage(exception)}", LogTone.Error);
-        }
-        finally
-        {
-            _downloadCancellation?.Dispose();
-            _downloadCancellation = null;
-            SetDownloadState(false);
-        }
-    }
-
-    /// <summary>Opens the completed installer with the operating system's default handler.</summary>
-    private async void OnOpenHubInstallerClick(object? sender, RoutedEventArgs e)
-    {
-        if (_downloadedInstallerPath is null || !File.Exists(_downloadedInstallerPath))
-        {
-            HubDownloadStatus.Text = "安装包不存在，请重新下载";
-            OpenHubInstallerButton.IsVisible = false;
-            return;
-        }
-
-        var file = await StorageProvider.TryGetFileFromPathAsync(_downloadedInstallerPath);
-        var opened = file is not null && await Launcher.LaunchFileAsync(file);
-        if (!opened)
-        {
-            AddLog("无法打开 Unity Hub 安装包。", LogTone.Warning);
+            AddLog($"无法打开 Unity Hub 下载地址：{GetErrorMessage(exception)}", LogTone.Error);
         }
     }
 
@@ -507,101 +433,22 @@ public partial class MainWindow : Window
         ToolTip.SetTip(LaunchSummaryText, LaunchSummaryText.Text);
     }
 
-    /// <summary>Configures platform-specific download copy and Linux fallback behavior.</summary>
-    private void ConfigureHubDownload()
+    /// <summary>Configures the platform-specific browser download and documentation fallback.</summary>
+    private void ConfigureHubInstaller()
     {
-        var download = UnityHubDownloadService.GetCurrentPlatform();
-        if (download is null)
+        var installer = UnityHubInstallerCatalog.GetCurrentPlatform();
+        if (installer is null)
         {
             HubDownloadDescription.Text = OperatingSystem.IsLinux()
                 ? "Linux 版通过 Unity 官方软件源安装"
-                : "当前系统架构没有可用的一键安装包";
+                : "当前系统架构没有可用的安装包";
             DownloadHubButtonText.Text = "安装说明";
-            DownloadHubIcon.Kind = LucideIconKind.ExternalLink;
-            HubDownloadStatus.Text = "打开 Unity 官方安装文档";
             return;
         }
 
         HubDownloadDescription.Text =
-            $"从 Unity 官方 CDN 获取 {download.PlatformLabel} 安装包";
-        ToolTip.SetTip(HubDownloadDescription, download.DownloadUri.ToString());
-    }
-
-    /// <summary>Resolves the operating system's redirected download directory with a safe fallback.</summary>
-    private async Task<string> GetDownloadDirectoryAsync()
-    {
-        var downloads = await StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Downloads);
-        if (downloads?.Path.IsFile == true
-            && !string.IsNullOrWhiteSpace(downloads.Path.LocalPath))
-        {
-            return downloads.Path.LocalPath;
-        }
-
-        var documents = await StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
-        return documents?.Path.IsFile == true
-               && !string.IsNullOrWhiteSpace(documents.Path.LocalPath)
-            ? documents.Path.LocalPath
-            : System.IO.Path.GetTempPath();
-    }
-
-    /// <summary>Updates progress controls without blocking the UI thread.</summary>
-    private void UpdateDownloadProgress(DownloadProgress progress)
-    {
-        if (progress.Percentage is double percentage)
-        {
-            HubDownloadProgress.IsIndeterminate = false;
-            HubDownloadProgress.Value = percentage;
-            HubDownloadStatus.Text =
-                $"{FormatBytes(progress.BytesReceived)} / {FormatBytes(progress.TotalBytes!.Value)} · {percentage:F0}%";
-        }
-        else
-        {
-            HubDownloadProgress.IsIndeterminate = true;
-            HubDownloadStatus.Text = $"已下载 {FormatBytes(progress.BytesReceived)}";
-        }
-    }
-
-    /// <summary>Switches the download command between start and cancellation states.</summary>
-    private void SetDownloadState(bool isDownloading)
-    {
-        HubDownloadProgress.IsVisible = isDownloading || _downloadedInstallerPath is not null;
-        DownloadHubButtonText.Text = isDownloading
-            ? "取消下载"
-            : UnityHubDownloadService.GetCurrentPlatform() is null
-                ? "安装说明"
-                : "一键下载";
-        DownloadHubIcon.Kind = isDownloading
-            ? LucideIconKind.CircleX
-            : UnityHubDownloadService.GetCurrentPlatform() is null
-                ? LucideIconKind.ExternalLink
-                : LucideIconKind.Download;
-        OpenHubInstallerButton.IsVisible =
-            !isDownloading
-            && _downloadedInstallerPath is not null
-            && File.Exists(_downloadedInstallerPath);
-    }
-
-    /// <summary>Returns a credential-safe description of the route used for downloading.</summary>
-    private static string GetRouteDescription(Uri? proxy)
-    {
-        return proxy is null
-            ? "直连"
-            : $"代理 {UriSanitizer.Redact(proxy)}";
-    }
-
-    /// <summary>Formats byte counts into compact binary units for progress display.</summary>
-    private static string FormatBytes(long bytes)
-    {
-        string[] units = ["B", "KB", "MB", "GB"];
-        var value = (double)bytes;
-        var unitIndex = 0;
-        while (value >= 1024 && unitIndex < units.Length - 1)
-        {
-            value /= 1024;
-            unitIndex++;
-        }
-
-        return $"{value:0.#} {units[unitIndex]}";
+            $"在浏览器中获取 {installer.PlatformLabel} 安装包";
+        ToolTip.SetTip(HubDownloadDescription, installer.DownloadUri.ToString());
     }
 
     /// <summary>Disables conflicting commands during native platform work.</summary>

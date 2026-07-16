@@ -46,6 +46,7 @@ jobs:
           --self-contained true
           -p:PublishSingleFile=true
           -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
           -p:DebugType=None
           -p:DebugSymbols=false
           -o artifacts/HubRoute-${{ matrix.rid }}
@@ -87,8 +88,9 @@ jobs:
           GH_REPO: ${{ github.repository }}
         shell: bash
         run: |
+          release_title="HubRoute $GITHUB_REF_NAME - Unity Hub 国际版下载与启动工具"
           if [[ "$GITHUB_REF_NAME" == *-* ]]; then
-            gh release create "$GITHUB_REF_NAME" artifacts/*.zip --generate-notes --prerelease --verify-tag
+            gh release create "$GITHUB_REF_NAME" artifacts/*.zip --title "$release_title" --generate-notes --prerelease --verify-tag
           else
-            gh release create "$GITHUB_REF_NAME" artifacts/*.zip --generate-notes --latest --verify-tag
+            gh release create "$GITHUB_REF_NAME" artifacts/*.zip --title "$release_title" --generate-notes --latest --verify-tag
           fi

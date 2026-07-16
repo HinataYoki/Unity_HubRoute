@@ -25,7 +25,6 @@ TestResults/
 *.key
 
 # Runtime leftovers
-*.download
 *.tmp
 *.log
 
