@@ -9,6 +9,31 @@ public sealed class HubLauncher(UnityHubLocator locator)
 {
     private static readonly TimeSpan HubShutdownTimeout = TimeSpan.FromSeconds(8);
 
+    /// <summary>
+    /// Proxy variables applied to the Hub process tree. Hub 3.x reads the HTTP(S)_PROXY pair, while
+    /// Hub 4.x prefers the Unity Editor variables (UNITY_PROXYSERVER) and falls back to the former.
+    /// </summary>
+    private static readonly string[] ProxyEnvironmentVariables =
+    [
+        "HTTP_PROXY",
+        "HTTPS_PROXY",
+        "http_proxy",
+        "https_proxy",
+        "UNITY_PROXYSERVER",
+        "unity_proxyserver"
+    ];
+
+    /// <summary>
+    /// Bypass variables that Hub 4.x honours before any proxy variable. An inherited
+    /// UNITY_NOPROXY entry makes the Hub skip the proxy even when the variables above are set,
+    /// so it is always cleared for both proxy and direct mode.
+    /// </summary>
+    private static readonly string[] ProxyBypassEnvironmentVariables =
+    [
+        "UNITY_NOPROXY",
+        "unity_noproxy"
+    ];
+
     /// <summary>Stops existing Hub instances, starts a proxy-scoped replacement, and returns its process identifier.</summary>
     public async Task<LaunchResult> LaunchAsync(
         string hubPath,
@@ -38,9 +63,14 @@ public sealed class HubLauncher(UnityHubLocator locator)
             WorkingDirectory = Path.GetDirectoryName(hubPath) ?? Environment.CurrentDirectory
         };
 
+        foreach (var key in ProxyBypassEnvironmentVariables)
+        {
+            startInfo.Environment.Remove(key);
+        }
+
         if (proxyUri is null)
         {
-            foreach (var key in new[] { "HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy" })
+            foreach (var key in ProxyEnvironmentVariables)
             {
                 startInfo.Environment.Remove(key);
             }
@@ -48,10 +78,10 @@ public sealed class HubLauncher(UnityHubLocator locator)
         else
         {
             var value = proxyUri.GetLeftPart(UriPartial.Authority);
-            startInfo.Environment["HTTP_PROXY"] = value;
-            startInfo.Environment["HTTPS_PROXY"] = value;
-            startInfo.Environment["http_proxy"] = value;
-            startInfo.Environment["https_proxy"] = value;
+            foreach (var key in ProxyEnvironmentVariables)
+            {
+                startInfo.Environment[key] = value;
+            }
         }
 
         return startInfo;

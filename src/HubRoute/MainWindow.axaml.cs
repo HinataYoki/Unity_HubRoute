@@ -144,7 +144,8 @@ public partial class MainWindow : Window
                         new FilePickerFileType("Unity Hub")
                         {
                             Patterns = OperatingSystem.IsWindows()
-                                ? ["Unity Hub.exe"]
+                                // Hub 3.x ships "Unity Hub.exe"; Hub 4.x MSIX exposes the "unityhub.exe" alias.
+                                ? ["Unity Hub.exe", "unityhub.exe"]
                                 : ["unityhub", "*.AppImage"]
                         },
                         FilePickerFileTypes.All
@@ -336,9 +337,15 @@ public partial class MainWindow : Window
         }
 
         HubStatusValue.Text = snapshot.Hub is null ? "需要选择" : "已定位";
-        HubStatusSource.Text = snapshot.Hub?.Version is not null
-            ? $"版本 {snapshot.Hub.Version}"
-            : snapshot.Hub?.Source ?? "未找到安装记录";
+        // The source distinguishes a 3.x install from the 4.x MSIX package, so keep it visible with the version.
+        HubStatusSource.Text = snapshot.Hub switch
+        {
+            null => "未找到安装记录",
+            { Version: not null } hub => $"{hub.Source} · {hub.Version}",
+            var hub => hub.Source
+        };
+        ToolTip.SetTip(HubStatusValue, snapshot.Hub?.Path);
+        ToolTip.SetTip(HubStatusSource, snapshot.Hub?.Path);
         if (snapshot.Hub is not null && string.IsNullOrWhiteSpace(HubPathTextBox.Text))
         {
             HubPathTextBox.Text = snapshot.Hub.Path;

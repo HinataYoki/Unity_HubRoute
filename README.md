@@ -14,7 +14,7 @@ HubRoute 可以自动选择与操作系统及 CPU 架构匹配的官方国际版
 
 ![通过 Unity Hub 下载 Unity 编辑器](docs/screenshots/unity-hub-editor-download.png)
 
-HubRoute 注入的 HTTP_PROXY / HTTPS_PROXY 会沿操作系统的子进程环境继承：
+HubRoute 注入的 HTTP_PROXY / HTTPS_PROXY / UNITY_PROXYSERVER 会沿操作系统的子进程环境继承：
 
 ~~~text
 HubRoute -> Unity Hub -> Unity Editor -> Unity Package Manager -> Git (HTTPS)
@@ -26,9 +26,9 @@ HubRoute -> Unity Hub -> Unity Editor -> Unity Package Manager -> Git (HTTPS)
 
 - 自动读取 Windows、macOS 和 Linux 的显式系统代理。
 - 探测常见本地 HTTP 代理端口，也支持手动填写代理地址。
-- 仅向 Unity Hub 子进程注入 HTTP_PROXY / HTTPS_PROXY，不修改系统全局设置。
+- 仅向 Unity Hub 子进程注入 HTTP_PROXY / HTTPS_PROXY / UNITY_PROXYSERVER，并清除继承的 UNITY_NOPROXY，不修改系统全局设置。
 - 启动前自动关闭已经运行的 Unity Hub，再以所选代理环境启动新实例。
-- 自动定位常见路径中的 Unity Hub，并支持手动选择程序。
+- 自动定位 Unity Hub 3.x 的常规安装和 4.x 的 MSIX 应用包，并支持手动选择程序。
 - 根据当前操作系统和 CPU 架构，在默认浏览器中打开对应的 Windows 或 macOS 国际版 Unity Hub 官方下载地址。
 - 提供自动代理、手动代理和直连三种模式。
 
@@ -38,7 +38,24 @@ HubRoute **不是代理软件，也不提供代理节点或网络隧道**。使�
 
 HubRoute 的端口测试只确认代理端口可连接，不代表 Unity 的登录、许可证和下载接口一定可用。最终连通性仍取决于代理规则、节点和网络环境。
 
-为确保代理变量能够注入，点击“启动 Unity Hub”时会自动关闭已运行的 Unity Hub 及其 Helper 进程，但不会关闭 Unity Editor。检测到 Editor 正在运行时，HubRoute 会先提醒现有 Editor 无法继承新代理，并由用户选择取消或继续。已经打开的 Editor 需要保存并关闭，再从重新启动后的 Hub 打开才能继承代理。
+为确保代理变量能够注入，点击“启动 Unity Hub”时会自动关闭已运行的 Unity Hub（3.x 的 Helper 子进程与 4.x 的 WebView2 子进程一并结束），但不会关闭 Unity Editor。检测到 Editor 正在运行时，HubRoute 会先提醒现有 Editor 无法继承新代理，并由用户选择取消或继续。已经打开的 Editor 需要保存并关闭，再从重新启动后的 Hub 打开才能继承代理。
+
+## Unity Hub 3.x 与 4.x
+
+Unity Hub 4.0 起改为原生应用并以 MSIX 应用包分发，安装时会替换 3.x，因此两者的可执行文件位置和代理读取方式都不同。HubRoute 同时兼容两种安装：
+
+| | Unity Hub 3.x | Unity Hub 4.x |
+|---|---|---|
+| 安装形态 | NSIS 安装程序 | MSIX 应用包 |
+| 可执行文件 | `%ProgramFiles%\Unity Hub\Unity Hub.exe` | `C:\Program Files\WindowsApps\<包全名>\app\Unity Hub.exe` |
+| 定位方式 | 常见路径、Windows 卸载记录 | 应用包注册表（Repository\Packages、AppxAllUserStore），回退到 `unityhub.exe` 应用执行别名 |
+| 代理变量 | HTTP_PROXY / HTTPS_PROXY | UNITY_PROXYSERVER 优先，HTTP_PROXY / HTTPS_PROXY 作为回退 |
+
+HubRoute 启动时始终注入两组变量，因此无需区分 Hub 版本；直连模式会同时清除这六个变量。
+
+Hub 4.x 还会读取 Unity Editor 的 `UNITY_NOPROXY` 绕过列表，该变量一旦命中会连注入的代理一起跳过。HubRoute 在代理和直连两种模式下都会清除从父进程继承的 `UNITY_NOPROXY` / `unity_noproxy`，避免系统里已有的绕过配置让注入失效。
+
+4.x 的包内目录无法直接浏览（`C:\Program Files\WindowsApps` 受系统保护），路径由注册表中的包根目录加上 `AppxManifest.xml` 声明的入口程序推导。界面上的「已定位」来源会显示是 MSIX 应用包还是常用安装路径，并附带检测到的版本号。
 
 ## 平台支持
 

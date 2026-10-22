@@ -19,6 +19,18 @@ public sealed class HubLauncherTests
         Assert.False(result.UseShellExecute);
     }
 
+    /// <summary>Sets the Unity Editor proxy variables that Hub 4.x reads before the HTTP(S)_PROXY pair.</summary>
+    [Fact]
+    public void BuildStartInfo_WithProxy_SetsUnityProxyServerVariables()
+    {
+        var result = HubLauncher.BuildStartInfo(
+            Path.Combine(Path.GetTempPath(), "Unity Hub.exe"),
+            new Uri("http://127.0.0.1:7890"));
+
+        Assert.Equal("http://127.0.0.1:7890", result.Environment["UNITY_PROXYSERVER"]);
+        Assert.Equal("http://127.0.0.1:7890", result.Environment["unity_proxyserver"]);
+    }
+
     /// <summary>Removes inherited proxy variables when direct mode is selected.</summary>
     [Fact]
     public void BuildStartInfo_WithoutProxy_RemovesInheritedVariables()
@@ -31,6 +43,34 @@ public sealed class HubLauncherTests
         Assert.DoesNotContain("HTTPS_PROXY", result.Environment.Keys);
         Assert.DoesNotContain("http_proxy", result.Environment.Keys);
         Assert.DoesNotContain("https_proxy", result.Environment.Keys);
+        Assert.DoesNotContain("UNITY_PROXYSERVER", result.Environment.Keys);
+        Assert.DoesNotContain("unity_proxyserver", result.Environment.Keys);
+        Assert.DoesNotContain("UNITY_NOPROXY", result.Environment.Keys);
+    }
+
+    /// <summary>Clears inherited Unity bypass variables so a stale UNITY_NOPROXY cannot disable the proxy.</summary>
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void BuildStartInfo_AlwaysRemovesUnityNoProxy(bool useProxy)
+    {
+        const string key = "UNITY_NOPROXY";
+        var previous = Environment.GetEnvironmentVariable(key);
+        try
+        {
+            Environment.SetEnvironmentVariable(key, "*");
+
+            var result = HubLauncher.BuildStartInfo(
+                Path.Combine(Path.GetTempPath(), "Unity Hub.exe"),
+                useProxy ? new Uri("http://127.0.0.1:7890") : null);
+
+            Assert.DoesNotContain("UNITY_NOPROXY", result.Environment.Keys);
+            Assert.DoesNotContain("unity_noproxy", result.Environment.Keys);
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable(key, previous);
+        }
     }
 
     /// <summary>Recognizes Hub executables and Electron helpers without matching Unity Editor processes.</summary>
