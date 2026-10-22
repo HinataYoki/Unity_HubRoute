@@ -18,6 +18,8 @@ public partial class MainWindow : Window
     private readonly ProxyDiscoveryService _proxyDiscovery = new();
     private readonly UnityHubLocator _hubLocator = new();
     private readonly HubLauncher _hubLauncher;
+    private readonly AppSettingsStore _settingsStore = new();
+    private readonly AppSettings _settings;
     private readonly CancellationTokenSource _lifetimeCancellation = new();
     private EnvironmentSnapshot? _snapshot;
     private ProxyMode _proxyMode = ProxyMode.Auto;
@@ -28,6 +30,8 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         _hubLauncher = new HubLauncher(_hubLocator);
+        _settings = _settingsStore.Load();
+        RestoreSavedTheme();
         InitializeComponent();
         PlatformLabel.Text = GetPlatformName();
         ConfigureHubInstaller();
@@ -269,7 +273,7 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>Toggles explicitly between light and dark while initially following the operating system.</summary>
+    /// <summary>Toggles between light and dark, then persists the choice for the next start.</summary>
     private void OnToggleThemeClick(object? sender, RoutedEventArgs e)
     {
         if (Application.Current is null)
@@ -277,9 +281,30 @@ public partial class MainWindow : Window
             return;
         }
 
-        Application.Current.RequestedThemeVariant = ActualThemeVariant == ThemeVariant.Dark
+        var variant = ActualThemeVariant == ThemeVariant.Dark
             ? ThemeVariant.Light
             : ThemeVariant.Dark;
+        Application.Current.RequestedThemeVariant = variant;
+        _settings.ThemeVariant = AppSettingsStore.ToSettingValue(variant);
+        if (!_settingsStore.Save(_settings))
+        {
+            AddLog("无法保存主题设置，下次启动将恢复系统主题", LogTone.Warning);
+        }
+    }
+
+    /// <summary>
+    /// Applies the theme saved by an earlier session before the window is built. Without a saved
+    /// choice the application keeps following the operating system.
+    /// </summary>
+    private void RestoreSavedTheme()
+    {
+        if (Application.Current is null
+            || AppSettingsStore.ParseThemeVariant(_settings.ThemeVariant) is not { } variant)
+        {
+            return;
+        }
+
+        Application.Current.RequestedThemeVariant = variant;
     }
 
     /// <summary>Runs proxy and Unity Hub discovery concurrently and applies one coherent snapshot.</summary>

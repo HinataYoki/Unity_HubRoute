@@ -4,7 +4,7 @@ HubRoute 是一款轻量、开源、跨平台的 Unity Hub 工具，可在默认
 
 [下载最新稳定版](https://github.com/HinataYoki/Unity_HubRoute/releases/latest) | [查看平台支持](#平台支持) | [使用说明](#使用方式)
 
-> 当前稳定版：0.1.1。HubRoute 不是代理软件，不提供代理节点或网络隧道；使用代理模式前需要已有可用的本地或企业 HTTP 代理。
+> 当前稳定版：0.2.0。HubRoute 不是代理软件，不提供代理节点或网络隧道；使用代理模式前需要已有可用的本地或企业 HTTP 代理。
 
 ![HubRoute 主窗口](docs/screenshots/main-window.png)
 
